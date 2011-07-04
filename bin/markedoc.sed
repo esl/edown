@@ -1,4 +1,4 @@
-# markedoc 0.3.2 - 02/18/11 H. Diedrich <hd2010@eonblast.com>
+# markedoc 0.3.3 - 07/01/11 H. Diedrich <hd2010@eonblast.com>
 # ----------------------------------------------------------
 # sed command file to convert markdown format to edoc format
 # Linux, FreeBSD and Mac OS X. Windows must install sed.
@@ -7,7 +7,7 @@
 # FrBSD: sed -E -f <this file> <markdown file> > <edoc file>
 # MacOS: sed -E -f <this file> <markdown file> > <edoc file>
 # Linux: sed -r -f <this file> <markdown file> > <edoc file>
-# As only difference, Linux uses -r where the others use -E.
+# Only difference, Linux uses -r where the others use -E.
 # ----------------------------------------------------------
 # SAMPLE USE (FreeBSD / Mac OS X):
 # sed -E -f markedoc.sed README.markdown > overview.edoc
@@ -46,7 +46,7 @@
 # **********************************************************
 # SCRIPT
 # **********************************************************
-# Ach, da kommt der Meister! Herr, die Not ist groß!   ~~~
+# Ach, da kommt der Meister! Herr, die Not ist gross!  ~~~
 #   ~~~  Die ich rief, die Geister, Werd ich nun nicht los.
 # ----------------------------------------------------------
 # This is a sed script for use with -E/-r regexes & NOT -n.
@@ -177,12 +177,12 @@ s/>>/\&#187;/g
 
 # copy right
 # ----------
-s/\(c)/\&#169;/g
-s/\(C)/\&#169;/g
-s/\(R)/\&#174;/g
-s/\(r)/\&#174;/g
-s/\(tm)/\&#153;/g
-s/\(TM)/\&#153;/g
+s/\(c\)/\&#169;/g
+s/\(C\)/\&#169;/g
+s/\(R\)/\&#174;/g
+s/\(r\)/\&#174;/g
+s/\(tm\)/\&#153;/g
+s/\(TM\)/\&#153;/g
 
 # links
 # -----

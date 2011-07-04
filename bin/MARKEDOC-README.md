@@ -1,4 +1,4 @@
-edown markedoc 0.3.2
+edown markedoc 0.3.3
 ====================
 
 **markedoc helps you keep your project's README.md in sync with your overview.edoc.**
@@ -18,9 +18,11 @@ Use                                                           <a name=Use></a>
 At the command line for
 
 **FreeBSD, Mac OS X**
+
 	$ sed -E -f markedoc.sed <markdown file> > <edoc file>
 
 **Linux**
+
 	$ sed -r -f markedoc.sed <markdown file> > <edoc file>
 
 Usage for Linux and FreeBSD and Mac OS X is completely the same, except for the -r instead of the -E parameter. Both mean the same but happen to have a different name. In the examples below, replace -E with -r where necessary.
@@ -35,9 +37,11 @@ Test                                                          <a name=Test></a>
 ----
 
  **FreeBSD, Mac OS X**
+
 	$ samples/markedoc/test-bsd.sh
 
  **Linux**
+
 	$ samples/markedoc/test-linux.sh
 
 Then check html files as listed in the output.
@@ -48,10 +52,12 @@ Sample                                                      <a name=Sample></a>
 From edown project root, try out:
 
  **FreeBSD, Mac OS X**
+
 	$ sed -E -f bin/markedoc.sed samples/markedoc/SAMPLE1.md > samples/markedoc/doc/SAMPLE.edoc
 	$ erl -noshell -run edoc_run application "'myapp'" '"samples/markedoc"' '[]'
 
  **Linux**
+
 	$ sed -r -f bin/markedoc.sed samples/markedoc/SAMPLE1.md > samples/markedoc/doc/SAMPLE.edoc
 	$ erl -noshell -run edoc_run application "'myapp'" '"samples/markedoc"' '[]'
 
@@ -68,10 +74,12 @@ This illustrates the motivation for the markedoc as it is now: to have all code 
 For your own projects you'd copy markedoc.sed in the right place and do something like:
 
  **FreeBSD, Mac OS X**
+
 	$ sed -E -f bin/markedoc.sed README.md > doc/README.edoc
 	$ erl -noshell -run edoc_run application "'myapp'" '"."' '[]'	
 
  **Linux**
+
 	$ sed -r -f bin/markedoc.sed README.md > doc/README.edoc
 	$ erl -noshell -run edoc_run application "'myapp'" '"."' '[]'	
 
@@ -85,7 +93,7 @@ Accordingly, the sample stub overview.edoc used for the samples here, looks like
 
 	@author You 
 	@title  a markedoc sample doc
-	@version 0.2
+	@version 0.3.3
 	@docfile "samples/markedoc/doc/SAMPLE.edoc"
 
 Tricks                                                       <a name=Tricks></a>
@@ -113,7 +121,7 @@ Status                                                       <a name=Status></a>
 
 There are  many ways to create formats that will make the EDoc generator tilt and unfortunately, the errors it throws are sometimes not quite so illuminating to the reader. But why not try an incremental approach and see what works. As you can see from this [source sample][sample], which works alright, it's quite a lot that *does* work and the murky bits can usally be worked out fast. Sometimes an additional line helps, some spaces at the end of a line, general intuitive stuff. Please experiment and push your fixes to me.
 
- **Thanks!**
+ **Thanks!**  
 
 Notes                                                         <a name=Notes></a>
 -----
@@ -152,8 +160,14 @@ H. Diedrich <hd2010@eonblast.com>
 History
 -------
 
-02/18/11 - 0.3.2 - **edown**
+07/01/11 - 0.3.3 - **fixes** - Linux, FreeBSD, Mac OS X
 
+* #1: missing escape for brackets in copyright replacements 
+* fixed readme formatting, clean up of stand alone release
+
+02/18/11 - 0.3.2 - **edown release** - Linux, FreeBSD, Mac OS X
+
+* minor clean up
 * integrated into edown
 
 02/05/11 - 0.3.1 - **more polish** - Linux, FreeBSD, Mac OS X
@@ -194,3 +208,8 @@ History
 [Status]: #Status
 [Notes]: #Notes
 [Test]: #Test
+
+Thanks
+------
+* Ulf Wiger
+* Alexander Dorofeev
