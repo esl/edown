@@ -10,7 +10,7 @@ main([]) ->
     code:add_patha("ebin"),
     R = edoc:application(edown, ".",
 			 [{doclet, edown_doclet},
-			  {src_path, ["src"]},
+			  {source_path, ["src"]},
 			  {app_default,"http://www.erlang.org/doc/man"},
 			  {stylesheet, ""},  % don't copy stylesheet.css
 			  {image, ""},       % don't copy erlang.png
