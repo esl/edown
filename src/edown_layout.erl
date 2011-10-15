@@ -1058,11 +1058,10 @@ overview(E=#xmlElement{name = overview, content = Es}, Options) ->
     Opts = init_opts(E, Options),
     Title = [get_text(title, Es)],
     Desc = get_content(description, Es),
-    ShortDesc = get_content(briefDescription, Desc),
+%    ShortDesc = get_content(briefDescription, Desc),
     FullDesc = get_content(fullDescription, Desc),
-    Body = ([]
-	    %% ++ [{h1, [Title]}]
-	    ++ ShortDesc
+    Body = ([{h1, [Title]}]
+%	    ++ ShortDesc
 	    ++ copyright(Es)
 	    ++ version(Es)
 	    ++ since(Es)
