@@ -20,5 +20,13 @@
   {vsn, git},
   {description, "Markdown extension for EDoc"},
   {applications, [kernel, stdlib, edoc]},
+  {modules, [
+                edown_layout,
+                edown_make,
+                edown_doclet,
+                edown_lib,
+                edown_xmerl
+            ]
+  },
   {env, []}
  ]}.
