@@ -16,7 +16,9 @@
 %% @author Ulf Wiger <ulf.wiger@erlang-solutions.com>
 %% @copyright 2010 Erlang Solutions Ltd 
 %% @end
-%% =====================================================================
+%% =============================================================================
+%% Modified 2012 by Beads Land-Trujillo:  get_git_branch/0, redirect_href/3
+%% =============================================================================
 
 %% @doc EDoc Doclet module for producing Markdown.
 
@@ -201,7 +203,12 @@ redirect_href(Attrs, Branch, BaseHRef) ->
 		{match, _} ->
 		    false;
 		nomatch ->
-		    HRef1 = do_redirect(Href, AppBlob),
+			case Href of 
+				[$# | _]	->
+					HRef1 = do_redirect(?INDEX_FILE ++ Href, AppBlob);
+				_Else ->
+					HRef1 = do_redirect(Href, AppBlob)
+			end,			
 		    {true,
 		     lists:keyreplace(
 		       href, #xmlAttribute.name, Attrs,
@@ -218,13 +225,11 @@ do_redirect(Href, Prefix) ->
     end.
 
 get_git_branch() ->
-    case os:cmd("git branch | awk '/\\*/ {print $2}'") of
-        [_,_|_] = Res ->
-            %% trailing newline expected - remove.
-            lists:reverse(tl(lists:reverse(Res)));
-        Other ->
-            erlang:error({cannot_get_git_branch, Other})
-    end.
+	Git = os:cmd("git branch"),
+	case string:tokens(Git, " \n") of
+		[_,Branch|[]]	-> Branch;
+		Other			-> erlang:error({cannot_get_git_branch, Other})
+	end.
 
 %% Tried to display logo in a table on top of page, but not working.
 %% Presumably, this hits some limitation of Markdown
