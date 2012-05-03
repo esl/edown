@@ -829,6 +829,7 @@ todos(Es) ->
 	    Todos = [{li, [{font, [{color,red}], C}]}
 		     || #xmlElement{content = C} <- Es1],
 	    [{p, [{b, [{font, [{color,red}], ["To do"]}]},
+		  br,
 		  {ul, Todos}]}]
     end.
 
