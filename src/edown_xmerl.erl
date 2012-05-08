@@ -16,7 +16,9 @@
 %% @author Ulf Wiger <ulf.wiger@erlang-solutions.com>
 %% @copyright 2010 Erlang Solutions Ltd 
 %% @end
-%% =====================================================================
+%% =============================================================================
+%% Modified 2012 by Beads Land-Trujillo:  '#text#'/1, brstrip/1
+%% =============================================================================
 
 %% Description  : Callback module for exporting XML to Markdown.
 
@@ -41,7 +43,7 @@
 %% The '#text#' function is called for every text segment.
 
 '#text#'(Text) ->
-    to_string(Text).
+    brstrip(to_string(Text)).
 
 to_string(S) ->
     binary_to_list(iolist_to_binary([S])).
@@ -50,6 +52,8 @@ strip(Str) -> lstrip(rstrip(Str)).
 lstrip(Str) -> re:replace(Str,"^\\s","",[]).
 rstrip(Str) -> re:replace(Str, "\\s\$", []).
 
+% Strip double spaces at end of line -- markdown reads as hard return.
+brstrip(Str) -> re:replace(Str, "\\s+\\s\$", " ", [global, multiline]).
 
 %% The '#root#' tag is called when the entire structure has been
 %% exported. It does not appear in the structure itself.
