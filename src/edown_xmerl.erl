@@ -17,7 +17,8 @@
 %% @copyright 2010 Erlang Solutions Ltd
 %% @end
 %% =============================================================================
-%% Modified 2012 by Beads Land-Trujillo:  '#text#'/1, brstrip/1, md_elem/5
+%% Modified 2012 by Beads Land-Trujillo:  '#text#'/1, brstrip/1, md_elem/5,
+%%                                        '#element#'/5
 %% =============================================================================
 
 %% Description  : Callback module for exporting XML to Markdown.
@@ -52,8 +53,12 @@ strip(Str) -> lstrip(rstrip(Str)).
 lstrip(Str) -> re:replace(Str,"^\\s","",[]).
 rstrip(Str) -> re:replace(Str, "\\s\$", []).
 
-% Strip double spaces at end of line -- markdown reads as hard return.
-brstrip(Str) -> re:replace(Str, "\\s+\\s\$", "", [global, multiline]).
+% Strip double spaces at end of line (markdown reads as hard return).
+% Match word boundary only, so that leading tab on line by itself is
+% preserved (markdown reads as preformatted whitespace).
+brstrip(Str) ->
+  {ok, MP} = re:compile("\\b\\s+\\s\$", [multiline]),
+  re:replace(Str, MP, "", [global]).
 
 %% The '#root#' tag is called when the entire structure has been
 %% exported. It does not appear in the structure itself.
@@ -86,8 +91,6 @@ brstrip(Str) -> re:replace(Str, "\\s+\\s\$", "", [global, multiline]).
     false ->
       '#element#'(tt, Data, Attrs, Parents, E)
   end;
-'#element#'('pre', Data, Attrs, Parents, E) ->
-  xmerl_html:'#element#'('pre', Data, Attrs, Parents, E);
 '#element#'('div', Data, _, _Parents, _E) ->
   %% special case - we use 'div' to enforce html encoding
   Data;
@@ -142,7 +145,7 @@ md_elem(a, Data, Attrs, _Parents, _E) ->
     false ->
       case lists:keyfind(name, #xmlAttribute.name, Attrs) of
         #xmlAttribute{} ->
-          [ %%"\n", 
+          [ %%"\n",
             xmerl_lib:start_tag(a,Attrs),
             Data,
             xmerl_lib:end_tag(a)
@@ -158,6 +161,9 @@ md_elem(li, Data, _Attrs, [{ul,_}|_], _E) ->
   ["* ", strip(Data), "\n"];
 md_elem(li, Data, _Attrs, [{ol,_}|_], _E) ->
   ["1. ", strip(Data), "\n"];
+md_elem(pre, Data, _Attrs, _Parents, _E) ->
+  {ok, MP} = re:compile("^", [multiline]),
+  re:replace(Data, MP, "\t", [global, {return, list}]);
 md_elem(Tag, Data, Attrs, Parents, E) ->
   case Tag of
     title ->
