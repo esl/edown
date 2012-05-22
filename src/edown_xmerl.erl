@@ -141,7 +141,7 @@ md_elem(a, Data, Attrs, _Parents, _E) ->
   %% io:fwrite("A TAG = ~p~nPs = ~p~n", [_E, _Parents]),
   case lists:keyfind(href, #xmlAttribute.name, Attrs) of
     #xmlAttribute{value = HRef}  ->
-      ["[", Data, "](", HRef, ")"];
+      [" [", Data, "](", HRef, ")"];
     false ->
       case lists:keyfind(name, #xmlAttribute.name, Attrs) of
         #xmlAttribute{} ->
