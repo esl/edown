@@ -91,7 +91,7 @@
 module(Element, Options) ->
     XML = layout_module(Element, init_opts(Element, Options)),
     Export = proplists:get_value(xml_export, Options,
-				 ?DEFAULT_XML_EXPORT),
+        ?DEFAULT_XML_EXPORT),
     xmerl:export_simple(XML, Export, []).
 
 % Put layout options in a data structure for easier access.
@@ -109,24 +109,24 @@ module(Element, Options) ->
 
 init_opts(Element, Options) ->
     R = #opts{root = get_attrval(root, Element),
-	      index_columns = proplists:get_value(index_columns,
-						  Options, 1),
-	      sort_functions = proplists:get_value(sort_functions,
-						   Options, true),
+        index_columns = proplists:get_value(index_columns,
+              Options, 1),
+        sort_functions = proplists:get_value(sort_functions,
+              Options, true),
               pretty_printer = proplists:get_value(pretty_printer,
                                                    Options, '')
-	     },
+      },
     case proplists:get_value(stylesheet, Options) of
-	undefined ->
-	    S = edoc_lib:join_uri(R#opts.root, ?STYLESHEET),
-	    R#opts{stylesheet = S};
-	"" ->
-	    R;  % don't use any stylesheet
-	S when is_list(S) ->
-	    R#opts{stylesheet = S}; 
-	_ ->
-	    report("bad value for option `stylesheet'.", []),
-	    exit(error)
+  undefined ->
+      S = edoc_lib:join_uri(R#opts.root, ?STYLESHEET),
+      R#opts{stylesheet = S};
+  "" ->
+      R;  % don't use any stylesheet
+  S when is_list(S) ->
+      R#opts{stylesheet = S};
+  _ ->
+      report("bad value for option `stylesheet'.", []),
+      exit(error)
     end.
 
 
@@ -173,9 +173,9 @@ layout_module(#xmlElement{name = module, content = Es}=E, Opts) ->
     Args = module_params(get_content(args, Es)),
     Name = get_attrval(name, E),
     Title = case get_elem(args, Es) of
-		[] -> ["Module ", Name];
-		_ -> ["Abstract module ", Name, " [", {Args}, "]"]
-	    end,
+    [] -> ["Module ", Name];
+    _ -> ["Abstract module ", Name, " [", {Args}, "]"]
+      end,
     Desc = get_content(description, Es),
     FullDesc = get_content(fullDescription, Desc),
     {ShortDesc, RestDesc} = get_first_sentence(FullDesc),
@@ -184,32 +184,32 @@ layout_module(#xmlElement{name = module, content = Es}=E, Opts) ->
     SortedFs = lists:sort(Functions),
     Body = ([]   % navigation("top")
             ++ [{h1, Title}]
-	    ++ doc_index(FullDesc, Functions, Types)
-	    ++ [{p,[]}]
-	    ++ ShortDesc
-	    ++ [{p,[]}]
-	    ++ copyright(Es)
-	    ++ deprecated(Es, "module")
-	    ++ version(Es)
-	    ++ since(Es)
-	    ++ behaviours(Es, Name)
-	    ++ authors(Es)
-	    ++ references(Es)
-	    ++ sees(Es)
-	    ++ todos(Es)
-	    ++ if RestDesc == [] -> [];
-		  true -> [
-			   {a, [{name, "description"}], []},
-			   {h2, ["Description"]}
-			   | RestDesc]
-	       end
-	    ++ types(lists:sort(Types), Opts)
-	    ++ function_index(SortedFs, Opts#opts.index_columns)
-	    ++ if Opts#opts.sort_functions -> functions(SortedFs, Opts);
-		  true -> functions(Functions, Opts)
-	       end),
-	    %% ++ navigation("bottom")
-	    %% ++ timestamp()),
+      ++ doc_index(FullDesc, Functions, Types)
+      ++ [{p,[]}]
+      ++ ShortDesc
+      ++ [{p,[]}]
+      ++ copyright(Es)
+      ++ deprecated(Es, "module")
+      ++ version(Es)
+      ++ since(Es)
+      ++ behaviours(Es, Name)
+      ++ authors(Es)
+      ++ references(Es)
+      ++ sees(Es)
+      ++ todos(Es)
+      ++ if RestDesc == [] -> [];
+      true -> [
+        {a, [{name, "description"}], []},
+        {h2, ["Description"]}
+        | RestDesc]
+        end
+      ++ types(lists:sort(Types), Opts)
+      ++ function_index(SortedFs, Opts#opts.index_columns)
+      ++ if Opts#opts.sort_functions -> functions(SortedFs, Opts);
+      true -> functions(Functions, Opts)
+        end),
+      %% ++ navigation("bottom")
+      %% ++ timestamp()),
     %% if Name == "edown_doclet" ->
     %% 	    io:fwrite("edown_doclet:~n"
     %% 		      "-----------------~n"
@@ -222,8 +222,8 @@ layout_module(#xmlElement{name = module, content = Es}=E, Opts) ->
     Res = to_simple(markdown(Title, stylesheet(Opts), Body)),
     Res.
 
-%% This function is a workaround for a bug in xmerl_lib:expand_content/1 that 
-%% causes it to lose track of the parents if #xmlElement{} records are 
+%% This function is a workaround for a bug in xmerl_lib:expand_content/1 that
+%% causes it to lose track of the parents if #xmlElement{} records are
 %% encountered in the structure.
 %%
 to_simple([#xmlElement{name = Name, attributes = Attrs, content = Content}|T]) ->
@@ -232,10 +232,10 @@ to_simple([#xmlText{value = "\n" ++ _ = Txt} = H|T]) ->
     %% Treat explicit double-newlines specially, as they are otherwise converted
     %% in the next stage, causing trouble for Markdown
     case [C || C <- Txt, C =/= $\s] of
-	"\n\n" ->
-	    [{p, []} | to_simple(T)];
-	_ ->
-	    [text_to_simple(H) | to_simple(T)]
+  "\n\n" ->
+      [{p, []} | to_simple(T)];
+  _ ->
+      [text_to_simple(H) | to_simple(T)]
     end;
 to_simple([#xmlText{} = H | T]) ->
     [text_to_simple(H) | to_simple(T)];
@@ -252,10 +252,10 @@ to_simple([]) ->
 
 text_to_simple(#xmlText{parents = Ps, value = Text} = X) ->
     case [P || {P,_} <- Ps, lists:member(P, [pre,tt])] of
-	[] ->
-	    X#xmlText{value = normalize_text(Text)};
-	_ ->
-	    X
+  [] ->
+      X#xmlText{value = normalize_text(Text)};
+  _ ->
+      X
     end.
 
 
@@ -265,15 +265,15 @@ to_simple_attrs(As) ->
 normalize_text(Text) ->
     try normalize(binary_to_list(list_to_binary(Text)))
     catch
-	error:_ ->
-	    lists:flatten(io_lib:fwrite("~p", [Text]))
+  error:_ ->
+      lists:flatten(io_lib:fwrite("~p", [Text]))
     end.
 
 normalize(S) ->
     normalize1(to_string(S)).
 
 normalize1("\n" ++ [H|T]) when H==$\s;
-			      H==$\t ->
+            H==$\t ->
     normalize1("\n" ++ T);
 normalize1([H|T]) ->
     [H|normalize1(T)];
@@ -285,12 +285,12 @@ to_string(S) ->
 
 module_params(Es) ->
     As = [{get_text(argName, Es1),
-	   get_content(fullDescription, get_content(description, Es1))}
-	  || #xmlElement{content = Es1} <- Es],
+    get_content(fullDescription, get_content(description, Es1))}
+    || #xmlElement{content = Es1} <- Es],
     case As of
-	[] -> [];
-	[First | Rest] ->
-	    [element(1, First) | [ {[", ",A]} || {A, _D} <- Rest]]
+  [] -> [];
+  [First | Rest] ->
+      [element(1, First) | [ {[", ",A]} || {A, _D} <- Rest]]
     end.
 
 %% timestamp() ->
@@ -298,16 +298,16 @@ module_params(Es) ->
 %% 			     [edoc_lib:datestr(date()),
 %% 			      edoc_lib:timestr(time())])
 %% 	      ]}]}].
- 
+
 stylesheet(Opts) ->
     case Opts#opts.stylesheet of
-	undefined ->
-	    [];
-	CSS ->
-	    [{link, [{rel, "stylesheet"},
-		     {type, "text/css"},
-		     {href, CSS},
-		     {title, "EDoc"}], []}]
+  undefined ->
+      [];
+  CSS ->
+      [{link, [{rel, "stylesheet"},
+        {type, "text/css"},
+        {href, CSS},
+        {title, "EDoc"}], []}]
     end.
 
 %% navigation(Where) ->
@@ -332,46 +332,46 @@ stylesheet(Opts) ->
 
 doc_index(FullDesc, Functions, Types) ->
     case doc_index_rows(FullDesc, Functions, Types) of
-	[] -> [];
-	Rs ->
-	    [{ul, [{class, "index"}],
-	      [{li, [{a, [{href, local_label(R)}], [T]}]}
-	       || {T, R} <- Rs]}]
+  [] -> [];
+  Rs ->
+      [{ul, [{class, "index"}],
+        [{li, [{a, [{href, local_label(R)}], [T]}]}
+        || {T, R} <- Rs]}]
     end.
 
 doc_index_rows(FullDesc, Functions, Types) ->
     (if FullDesc == [] -> [];
-	true -> [{?DESCRIPTION_TITLE, ?DESCRIPTION_LABEL}]
+  true -> [{?DESCRIPTION_TITLE, ?DESCRIPTION_LABEL}]
      end
      ++ if Types == [] -> [];
-	   true -> [{?DATA_TYPES_TITLE, ?DATA_TYPES_LABEL}]
-	end
+    true -> [{?DATA_TYPES_TITLE, ?DATA_TYPES_LABEL}]
+  end
      ++ if Functions == [] -> [];
-	   true -> [{?FUNCTION_INDEX_TITLE, ?FUNCTION_INDEX_LABEL},
-		    {?FUNCTIONS_TITLE, ?FUNCTIONS_LABEL}]
-	end).
+    true -> [{?FUNCTION_INDEX_TITLE, ?FUNCTION_INDEX_LABEL},
+        {?FUNCTIONS_TITLE, ?FUNCTIONS_LABEL}]
+  end).
 
 function_index(Fs, Cols) ->
     case function_index_rows(Fs, Cols, []) of
-	[] -> [];
-	Rows ->
-	    [
-	     {a, [{name, ?FUNCTION_INDEX_LABEL}], []},
-	     {h2, [?FUNCTION_INDEX_TITLE]},
-	     {table, [{width, "100%"}, {border, 1},
-		      {cellspacing,0}, {cellpadding,2},
-		      {summary, "function index"}],
-	      Rows}]
+  [] -> [];
+  Rows ->
+      [
+      {a, [{name, ?FUNCTION_INDEX_LABEL}], []},
+      {h2, [?FUNCTION_INDEX_TITLE]},
+      {table, [{width, "100%"}, {border, 1},
+          {cellspacing,0}, {cellpadding,2},
+          {summary, "function index"}],
+        Rows}]
     end.
 
 function_index_rows(Fs, Cols, Title) ->
     Rows = (length(Fs) + (Cols - 1)) div Cols,
     (if Title == [] -> [];
-	true -> [{tr, [{th, [{colspan, Cols * 2}, {align, left}],
-			[Title]}]}]
+  true -> [{tr, [{th, [{colspan, Cols * 2}, {align, left}],
+      [Title]}]}]
      end
      ++ lists:flatmap(fun index_row/1,
-		      edoc_lib:transpose(edoc_lib:segment(Fs, Rows)))).
+          edoc_lib:transpose(edoc_lib:segment(Fs, Rows)))).
 
 index_row(Fs) ->
     [{tr, lists:flatmap(fun index_col/1, Fs)}].
@@ -384,20 +384,20 @@ index_col({Name, F=#xmlElement{content = Es}}) ->
 index_desc(Es) ->
     Desc = get_content(description, Es),
     (case get_content(deprecated, Es) of
- 	 [] -> [];
- 	 _ -> ["(", {em, ["Deprecated"]}, ".) "]
+    [] -> [];
+    _ -> ["(", {em, ["Deprecated"]}, ".) "]
      end
      ++ case get_content(briefDescription, Desc) of
-	    [] ->
-		equiv(Es);    % no description at all if no equiv
-	    ShortDesc ->
-		ShortDesc
-	end).
+      [] ->
+    equiv(Es);    % no description at all if no equiv
+      ShortDesc ->
+    ShortDesc
+  end).
 
 label_href(Content, F) ->
     case get_attrval(label, F) of
-	"" -> Content;
-	Ref -> [{a, [{href, local_label(Ref)}], Content}]
+  "" -> Content;
+  Ref -> [{a, [{href, local_label(Ref)}], Content}]
     end.
 
 %% <!ELEMENT function (args, typespec?, returns?, throws?, equiv?,
@@ -416,7 +416,7 @@ functions(Fs, Opts) ->
     if Es == [] -> [];
        true ->
             [?NL,
-	     {a, [{name, ?FUNCTIONS_LABEL}], []},
+      {a, [{name, ?FUNCTIONS_LABEL}], []},
              {h2, [?FUNCTIONS_TITLE]},
              ?NL | Es]
     end.
@@ -426,23 +426,23 @@ function(Name, E=#xmlElement{content = Es}, Opts) ->
     %% (label_anchor(FHead, E)
     (label_anchor("", E)
      ++ [{h3, [lists:flatten(FHead)]},
-	 {p, []},
-	 {p,
-	  case typespec(get_content(typespec, Es), Opts) of
-	      [] ->
-		  signature(get_content(args, Es),
-			    get_attrval(name, E));
-	      Spec -> Spec
-	  end},
-	 {p, []}]
+  {p, []},
+  {p,
+    case typespec(get_content(typespec, Es), Opts) of
+        [] ->
+      signature(get_content(args, Es),
+          get_attrval(name, E));
+        Spec -> Spec
+    end},
+  {p, []}]
      ++ case params(get_content(args, Es)) of
-	    [] -> [];
-	    Ps -> [{p, Ps}]
-	end
+      [] -> [];
+      Ps -> [{p, Ps}]
+  end
      ++ case returns(get_content(returns, Es)) of
-	    [] -> [];
-	    Rs -> [{p, Rs}]
-	end
+      [] -> [];
+      Rs -> [{p, Rs}]
+  end
      ++ throws(Es, Opts)
      ++ equiv_p(Es)
      ++ deprecated(Es, "function")
@@ -456,21 +456,21 @@ function_name(E) ->
 
 function_header(Name, E, Private) ->
     case is_exported(E) of
-	true -> [Name];
-	false -> [Name, Private]
+  true -> [Name];
+  false -> [Name, Private]
     end.
 
 is_exported(E) ->
     case get_attrval(exported, E) of
- 	"yes" -> true;
- 	_ -> false
+  "yes" -> true;
+  _ -> false
     end.
 
 label_anchor(Content, E) ->
 %%    io:fwrite("label_anchor(~p, ~p)~n", [Content, E]),
     case get_attrval(label, E) of
-	"" -> Content;
-	Ref -> [{a, [{name, Ref}], Content}]
+  "" -> Content;
+  Ref -> [{a, [{name, Ref}], Content}]
     end.
 
 %% <!ELEMENT args (arg*)>
@@ -479,7 +479,7 @@ label_anchor(Content, E) ->
 
 %% This is currently only done for functions without type spec.
 
-signature(Es, Name) -> 
+signature(Es, Name) ->
     [{tt, [Name, "("] ++ seq(fun arg/1, Es) ++ [") -> any()"]}].
 
 arg(#xmlElement{content = Es}) ->
@@ -489,30 +489,30 @@ arg(#xmlElement{content = Es}) ->
 
 params(Es) ->
     As = [{get_text(argName, Es1),
-	   get_content(fullDescription, get_content(description, Es1))}
-	  || #xmlElement{content = Es1} <- Es],
+    get_content(fullDescription, get_content(description, Es1))}
+    || #xmlElement{content = Es1} <- Es],
     As1 = [A || A <- As, element(2, A) /= []],
     if As1 == [] ->
-	    [];
+      [];
        true ->
-	    [ { [{tt, [A]}, ": "] ++  D ++ [br] }
-	      || {A, D} <- As1]
+      [ { [{tt, [A]}, ": "] ++  D ++ [br] }
+        || {A, D} <- As1]
     end.
 
 returns(Es) ->
     case get_content(fullDescription, get_content(description, Es)) of
-	[] ->
-	    [];
-	D ->
-	    ["returns: "] ++  D
+  [] ->
+      [];
+  D ->
+      ["returns: "] ++  D
     end.
 
 %% <!ELEMENT throws (type, localdef*)>
 
 throws(Es, Opts) ->
     case get_content(throws, Es) of
-	[] -> [];
-	Es1 ->
+  [] -> [];
+  Es1 ->
             %% Doesn't use format_type; keep it short!
             [{p, (["throws ", {tt, t_utype(get_elem(type, Es1))}]
                   ++ local_defs(get_elem(localdef, Es1), Opts))},
@@ -571,7 +571,7 @@ localdef(E = #xmlElement{content = Es}, Last, Opts) ->
     Name = case get_elem(typevar, Es) of
                [] ->
                    R = label_anchor(N0 = t_abstype(get_content(abstype, Es)), E),
-		   R;
+      R;
                [V] ->
                    N0 = t_var(V)
            end,
@@ -675,15 +675,15 @@ app_fix(L, I) -> % a bit slow
 
 fulldesc(Es) ->
     case get_content(fullDescription, get_content(description, Es)) of
-	[] -> [];
-	Desc -> [{p, Desc}]
+  [] -> [];
+  Desc -> [{p, Desc}]
     end.
 
 sees(Es) ->
     case get_elem(see, Es) of
-	[] -> [];
-	Es1 ->
-	    [{p, [{b, ["See also:"]}, " "] ++ seq(fun see/1, Es1, ["."])}]
+  [] -> [];
+  Es1 ->
+      [{p, [{b, ["See also:"]}, " "] ++ seq(fun see/1, Es1, ["."])}]
     end.
 
 see(E=#xmlElement{content = Es}) ->
@@ -692,20 +692,20 @@ see(E=#xmlElement{content = Es}) ->
 
 see(E, Es) ->
     case href(E) of
-	[] -> Es;
-	Ref ->
-	    [{a, Ref, Es}]
+  [] -> Es;
+  Ref ->
+      [{a, Ref, Es}]
     end.
 
 href(E) ->
     case get_attrval(href, E) of
-	"" -> [];
-	URI ->
-	    T = case get_attrval(target, E) of
-		    "" -> [];
-		    S -> [{target, S}]
-		end,
-	    [{href, URI} | T]
+  "" -> [];
+  URI ->
+      T = case get_attrval(target, E) of
+        "" -> [];
+        S -> [{target, S}]
+    end,
+      [{href, URI} | T]
     end.
 
 equiv_p(Es) ->
@@ -716,70 +716,70 @@ equiv(Es) ->
 
 equiv(Es, P) ->
     case get_content(equiv, Es) of
-	[] -> [];
-	Es1 ->
-	    case get_content(expr, Es1) of
-		[] -> [];
-		[Expr] ->
-		    Expr1 = [{esc_tt, [Expr]}],
-		    Expr2 = case get_elem(see, Es1) of
-				[] ->
-				    Expr1;
-				[E=#xmlElement{}] ->
-				    see(E, Expr1)
-			    end,
-		    Txt = ["Equivalent to "] ++ Expr2 ++ ["."],
-		    (case P of
-			 true -> [{p, Txt}];
-			 false -> Txt
-		     end)
-	    end
+  [] -> [];
+  Es1 ->
+      case get_content(expr, Es1) of
+    [] -> [];
+    [Expr] ->
+        Expr1 = [{esc_tt, [Expr]}],
+        Expr2 = case get_elem(see, Es1) of
+        [] ->
+            Expr1;
+        [E=#xmlElement{}] ->
+            see(E, Expr1)
+          end,
+        Txt = ["Equivalent to "] ++ Expr2 ++ ["."],
+        (case P of
+      true -> [{p, Txt}];
+      false -> Txt
+        end)
+      end
     end.
 
 copyright(Es) ->
     case get_content(copyright, Es) of
-	[] -> [];
-	Es1 ->
-	    [{p, ["Copyright (c) " | Es1]}]
+  [] -> [];
+  Es1 ->
+      [{p, ["Copyright (c) " | Es1]}]
     end.
 
 version(Es) ->
     case get_content(version, Es) of
-	[] -> [];
-	Es1 ->
-	    [{p, [{b, ["Version:"]}, " " | Es1]}]
+  [] -> [];
+  Es1 ->
+      [{p, [{b, ["Version:"]}, " " | Es1]}]
     end.
 
 since(Es) ->
     case get_content(since, Es) of
-	[] -> [];
-	Es1 ->
-	    [{p, [{b, ["Introduced in:"]}, " " | Es1]}]
+  [] -> [];
+  Es1 ->
+      [{p, [{b, ["Introduced in:"]}, " " | Es1]}]
     end.
 
 deprecated(Es, S) ->
     Es1 = get_content(description, get_content(deprecated, Es)),
     case get_content(fullDescription, Es1) of
-	[] -> [];
-	Es2 ->
-	    [{p, [{b, ["This " ++ S ++ " is deprecated:"]}, " " | Es2]}]
+  [] -> [];
+  Es2 ->
+      [{p, [{b, ["This " ++ S ++ " is deprecated:"]}, " " | Es2]}]
     end.
 
 behaviours(Es, Name) ->
     (case get_elem(behaviour, Es) of
-	 [] -> [];
-	 Es1 ->
-	     [{p, ([{b, ["Behaviours:"]}, " "]
-		   ++ seq(fun behaviour/1, Es1, ["."]))}]
+  [] -> [];
+  Es1 ->
+      [{p, ([{b, ["Behaviours:"]}, " "]
+      ++ seq(fun behaviour/1, Es1, ["."]))}]
      end
      ++
      case get_content(callbacks, Es) of
-	 [] -> [];
-	 Es1 ->
-	     [{p, ([{b, ["This module defines the ", {tt, [Name]},
-			 " behaviour."]},
-		    br, " Required callback functions: "]
-		   ++ seq(fun callback/1, Es1, ["."]))}]
+  [] -> [];
+  Es1 ->
+      [{p, ([{b, ["This module defines the ", {tt, [Name]},
+      " behaviour."]},
+        br, " Required callback functions: "]
+      ++ seq(fun callback/1, Es1, ["."]))}]
      end).
 
 behaviour(E=#xmlElement{content = Es}) ->
@@ -792,9 +792,9 @@ callback(E=#xmlElement{}) ->
 
 authors(Es) ->
     case get_elem(author, Es) of
-	[] -> [];
-	Es1 ->
-	    [{p, [{b, ["Authors:"]}, " "] ++ seq(fun author/1, Es1, ["."])}]
+  [] -> [];
+  Es1 ->
+      [{p, [{b, ["Authors:"]}, " "] ++ seq(fun author/1, Es1, ["."])}]
     end.
 
 atom(String) ->
@@ -810,52 +810,52 @@ author(E=#xmlElement{}) ->
     Mail = get_attrval(email, E),
     URI = get_attrval(website, E),
     (if Name == Mail ->
-	     [{a, [{href, "mailto:" ++ Mail}],[{tt, [Mail]}]}];
-	true ->
-	     if Mail == "" -> [Name];
-		true -> [Name, " (", {a, [{href, "mailto:" ++ Mail}],
-				      [{tt, [Mail]}]}, ")"]
-	     end
+      [{a, [{href, "mailto:" ++ Mail}],[{tt, [Mail]}]}];
+  true ->
+      if Mail == "" -> [Name];
+    true -> [Name, " (", {a, [{href, "mailto:" ++ Mail}],
+              [{tt, [Mail]}]}, ")"]
+      end
      end
      ++ if URI == "" ->
-		[];
-	   true ->
-		%% io:fwrite("URI = ~p~n", [URI]),
-		[" (", {em, ["web site:"]}, " ",
-		 %% {tt, [{a, [{href, URI}, {target, "_top"}], [URI]}]},
-		 {a, [{href, URI}], [{tt, [URI]}]},
-		 ")"]
-	end).
+    [];
+    true ->
+    %% io:fwrite("URI = ~p~n", [URI]),
+    [" (", {em, ["web site:"]}, " ",
+    %% {tt, [{a, [{href, URI}, {target, "_top"}], [URI]}]},
+    {a, [{href, URI}], [{tt, [URI]}]},
+    ")"]
+  end).
 
 references(Es) ->
     case get_elem(reference, Es) of
-	[] -> [];
-	Es1 ->
-	    [{p, [{b, ["References"]},
-		  {ul, [{li, C} || #xmlElement{content = C} <- Es1]}]}]
+  [] -> [];
+  Es1 ->
+      [{p, [{b, ["References"]},
+      {ul, [{li, C} || #xmlElement{content = C} <- Es1]}]}]
     end.
 
 todos(Es) ->
     case get_elem(todo, Es) of
-	[] -> [];
-	Es1 ->
-	    Todos = [{li, [{font, [{color,red}], C}]}
-		     || #xmlElement{content = C} <- Es1],
-	    [{p, [{b, [{font, [{color,red}], ["To do"]}]},
-		  br,
-		  {ul, Todos}]}]
+  [] -> [];
+  Es1 ->
+      Todos = [{li, [{font, [{color,red}], C}]}
+        || #xmlElement{content = C} <- Es1],
+      [{p, [{b, [{font, [{color,red}], ["To do"]}]},
+      br,
+      {ul, Todos}]}]
     end.
 
 t_name([E]) ->
     N = get_attrval(name, E),
     case get_attrval(module, E) of
-	"" -> atom(N);
-	M ->
-	    S = atom(M) ++ ":" ++ atom(N),
-	    case get_attrval(app, E) of
-		"" -> S;
-		A -> "//" ++ atom(A) ++ "/" ++ S
-	    end
+  "" -> atom(N);
+  M ->
+      S = atom(M) ++ ":" ++ atom(N),
+      case get_attrval(app, E) of
+    "" -> S;
+    A -> "//" ++ atom(A) ++ "/" ++ S
+      end
     end.
 
 t_utype([E]) ->
@@ -863,13 +863,13 @@ t_utype([E]) ->
 
 t_utype_elem(E=#xmlElement{content = Es}) ->
     case get_attrval(name, E) of
-	"" -> t_type(Es);
-	Name ->
-	    T = t_type(Es),
-	    case T of
-		[Name] -> T;    % avoid generating "Foo::Foo"
-		T -> [Name] ++ ["::"] ++ T
-	    end
+  "" -> t_type(Es);
+  Name ->
+      T = t_type(Es),
+      case T of
+    [Name] -> T;    % avoid generating "Foo::Foo"
+    T -> [Name] ++ ["::"] ++ T
+      end
     end.
 
 t_type([E=#xmlElement{name = typevar}]) ->
@@ -938,7 +938,7 @@ t_tuple(Es) ->
 
 t_fun(Es) ->
     ["("] ++ seq(fun t_utype_elem/1, get_content(argtypes, Es),
-		 [") -> "] ++ t_utype(get_elem(type, Es))).
+    [") -> "] ++ t_utype(get_elem(type, Es))).
 
 t_record(E, Es) ->
     Name = ["#"] ++ t_type(get_elem(atom, Es)),
@@ -997,23 +997,23 @@ get_attr(_, []) ->
 
 get_attrval(Name, #xmlElement{attributes = As}) ->
     case get_attr(Name, As) of
-	[#xmlAttribute{value = V}] ->
-	    V;
-	[] -> ""
+  [#xmlAttribute{value = V}] ->
+      V;
+  [] -> ""
     end.
 
 get_content(Name, Es) ->
     case get_elem(Name, Es) of
-	[#xmlElement{content = Es1}] ->
-	    Es1;
-	[] -> []
+  [#xmlElement{content = Es1}] ->
+      Es1;
+  [] -> []
     end.
 
 get_text(Name, Es) ->
     case get_content(Name, Es) of
-	[#xmlText{value = Text}] ->
-	    Text;
-	[] -> ""
+  [#xmlText{value = Text}] ->
+      Text;
+  [] -> ""
     end.
 
 local_label(R) ->
@@ -1069,15 +1069,15 @@ package(E=#xmlElement{name = package, content = Es}, Options) ->
     FullDesc = get_content(fullDescription, Desc),
     Body = ([{h1, [Title]}]
 %	    ++ ShortDesc
-	    ++ copyright(Es)
-	    ++ deprecated(Es, "package")
-	    ++ version(Es)
-	    ++ since(Es)
-	    ++ authors(Es)
-	    ++ references(Es)
-	    ++ sees(Es)
-	    ++ todos(Es)
-	    ++ FullDesc),
+      ++ copyright(Es)
+      ++ deprecated(Es, "package")
+      ++ version(Es)
+      ++ since(Es)
+      ++ authors(Es)
+      ++ references(Es)
+      ++ sees(Es)
+      ++ todos(Es)
+      ++ FullDesc),
     %% XML = xhtml(Title, stylesheet(Opts), Body),
     XML = markdown(Title, stylesheet(Opts), Body),
     xmerl:export_simple_content(XML, ?HTML_EXPORT).
@@ -1088,18 +1088,18 @@ overview(E=#xmlElement{name = overview, content = Es}, Options) ->
     Desc = get_content(description, Es),
     FullDesc = get_content(fullDescription, Desc),
     Body = ([]
-	    ++ [{h1, [Title]}]
-	    ++ copyright(Es)
-	    ++ version(Es)
-	    ++ since(Es)
-	    ++ authors(Es)
-	    ++ references(Es)
-	    ++ sees(Es)
-	    ++ todos(Es)
-	    ++ FullDesc),
-	    %% ++ [hr]
-	    %% ++ navigation("bottom")
-	    %% ++ timestamp()),
+      ++ [{h1, [Title]}]
+      ++ copyright(Es)
+      ++ version(Es)
+      ++ since(Es)
+      ++ authors(Es)
+      ++ references(Es)
+      ++ sees(Es)
+      ++ todos(Es)
+      ++ FullDesc),
+      %% ++ [hr]
+      %% ++ navigation("bottom")
+      %% ++ timestamp()),
     %% XML = xhtml(Title, stylesheet(Opts), Body),
     _XML = markdown(Title, stylesheet(Opts), Body).
     %% xmerl:export_simple_content(XML, ?HTML_EXPORT).
@@ -1253,24 +1253,24 @@ get_first_sentence(Es) ->
 
 get_first_sentence_1(Es) ->
     get_first_sentence_1(Es, []).
-    
+
 get_first_sentence_1([E = #xmlText{value = Txt} | Es], Acc) ->
     Last = case Es of
-	       [#xmlElement{name = p} | _] -> true;
-	       [#xmlElement{name = br} | _] -> true;
-	       [] -> true;
-	       _ -> false
-	   end,
+        [#xmlElement{name = p} | _] -> true;
+        [#xmlElement{name = br} | _] -> true;
+        [] -> true;
+        _ -> false
+    end,
     case end_of_sentence(Txt, Last) of
-	{value, Txt1, Rest} ->
-	    {lists:reverse([E#xmlText{value = Txt1}|Acc]),
-	     if Rest == [] ->
-		     Es;
-		true ->
-		     [#xmlText{value=Rest} | Es]
-	     end};
-	none ->
-	    get_first_sentence_1(Es, [E | Acc])
+  {value, Txt1, Rest} ->
+      {lists:reverse([E#xmlText{value = Txt1}|Acc]),
+      if Rest == [] ->
+        Es;
+    true ->
+        [#xmlText{value=Rest} | Es]
+      end};
+  none ->
+      get_first_sentence_1(Es, [E | Acc])
     end;
 get_first_sentence_1([E | Es], Acc) ->
     % Skip non-text segments - don't descend further

@@ -54,10 +54,9 @@ lstrip(Str) -> re:replace(Str,"^\\s","",[]).
 rstrip(Str) -> re:replace(Str, "\\s\$", []).
 
 % Strip double spaces at end of line (markdown reads as hard return).
-% Match word boundary only, so that leading tab on line by itself is
-% preserved (markdown reads as preformatted whitespace).
+% Match spaces only.  Tabs and newlines are preserved.
 brstrip(Str) ->
-  {ok, MP} = re:compile("\\b\\s+\\s\$", [multiline]),
+  {ok, MP} = re:compile("\\ +\\ \$", [multiline]),
   re:replace(Str, MP, "", [global]).
 
 %% The '#root#' tag is called when the entire structure has been
@@ -141,7 +140,7 @@ md_elem(a, Data, Attrs, _Parents, _E) ->
   %% io:fwrite("A TAG = ~p~nPs = ~p~n", [_E, _Parents]),
   case lists:keyfind(href, #xmlAttribute.name, Attrs) of
     #xmlAttribute{value = HRef}  ->
-      [" [", Data, "](", HRef, ")"];
+      ["[", Data, "](", HRef, ")"];
     false ->
       case lists:keyfind(name, #xmlAttribute.name, Attrs) of
         #xmlAttribute{} ->
@@ -173,8 +172,8 @@ md_elem(Tag, Data, Attrs, Parents, E) ->
     html  -> Data;
     body  -> Data;
     'div' -> Data;
-    ul    -> ["\n", Data];
-    ol    -> ["\n", Data];
+    ul    -> [Data];
+    ol    -> [Data];
     p     -> ["\n\n", Data];
     b     -> ["__", no_nl(Data), "__"];
     em    -> ["_", no_nl(Data), "_"];
@@ -192,7 +191,7 @@ md_elem(Tag, Data, Attrs, Parents, E) ->
           %% Don't strip newlines here, as it messes up the specs
           ["`", Data, "`"]
       end;
-    dl    -> ["\n", Data];
+    dl    -> [Data];
     dt    -> html_elem(dt, Data, Attrs, Parents, E);
     dd    -> html_elem(dd, Data, Attrs, Parents, E);
     h1    -> ["\n\n#", no_nl(Data), "#\n"];
