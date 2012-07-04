@@ -20,5 +20,6 @@
   {vsn, git},
   {description, "Markdown extension for EDoc"},
   {applications, [kernel, stdlib, edoc]},
+  {registered, []},
   {env, []}
  ]}.
