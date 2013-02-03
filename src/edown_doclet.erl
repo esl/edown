@@ -225,11 +225,11 @@ do_redirect(Href, Prefix) ->
     end.
 
 get_git_branch() ->
-    case os:cmd("git describe --always --all") of
+    case os:cmd("git rev-parse --abbrev-ref HEAD") of
 	"fatal:" ++ _ -> "master";  % sensible default
 	Git ->
-	    case string:tokens(Git, " \n/") of
-		[_, Branch]	-> Branch;
+	    case string:tokens(Git, " \n") of
+		[Branch]	-> Branch;
 		Other		-> erlang:error({cannot_get_git_branch, Other})
 	    end
     end.
