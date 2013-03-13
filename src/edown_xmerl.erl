@@ -32,7 +32,7 @@
 	 '#element#'/5,
 	 '#text#'/1]).
 
--import(xmerl_lib, [markup/3, find_attribute/2, export_text/1]).
+-import(xmerl_lib, [find_attribute/2]).
 
 -include_lib("xmerl/include/xmerl.hrl").
 
@@ -72,13 +72,6 @@ brstrip(Str) -> re:replace(Str, "\\s+\\s\$", "", [global, multiline]).
 %% for an example. (By default, we always generate the end tag, to make
 %% sure that the scope of a markup is not extended by mistake.)
 
-'#element#'('pre_pre', Data, Attrs, Parents, E) ->
-    case re:run(Data, "<a href=", []) of
-	{match, _} ->
-	    '#element#'(pre, Data, Attrs, Parents, E);
-	nomatch ->
-	    '#element#'(pre, escape_pre(Data), Attrs, Parents, E)
-    end;
 '#element#'('esc_tt', Data, Attrs, Parents, E) ->
     case within_html(Parents) of
 	true ->
@@ -86,8 +79,6 @@ brstrip(Str) -> re:replace(Str, "\\s+\\s\$", "", [global, multiline]).
 	false ->
 	    '#element#'(tt, Data, Attrs, Parents, E)
     end;
-'#element#'('pre', Data, Attrs, Parents, E) ->
-    xmerl_html:'#element#'('pre', Data, Attrs, Parents, E);
 '#element#'('div', Data, _, _Parents, _E) ->
     %% special case - we use 'div' to enforce html encoding
     Data;
@@ -120,12 +111,44 @@ elem(Tag, Data, Attrs, Parents, E) ->
 escape_pre(Data) ->
     re:replace(re:replace(Data, "<", "\\&lt;", [global]), ">", "\\&gt;", [global]).
 
+%% Given content of a pre tag in `Data', entity escape angle brackets
+%% but leave anchor tags alone. This is less than pretty, but is
+%% useful for processing function descriptions with embedded links for
+%% type definitions.
+escape_pre_with_a(Data) ->
+    escape_pre_with_a(lists:flatten(Data), [], out).
+
+escape_pre_with_a([$<, $a | Rest], Acc, out) ->
+    escape_pre_with_a(Rest, ["<a" | Acc], in);
+escape_pre_with_a([$<, $/, $a, $> | Rest], Acc, in) ->
+    escape_pre_with_a(Rest, ["</a>"|Acc], out);
+escape_pre_with_a([C|Rest], Acc, in) ->
+    escape_pre_with_a(Rest, [C|Acc], in);
+escape_pre_with_a([$<|Rest], Acc, out) ->
+    escape_pre_with_a(Rest, ["&lt;"|Acc], out);
+escape_pre_with_a([$> | Rest], Acc, out) ->
+    escape_pre_with_a(Rest, ["&gt;"|Acc], out);
+escape_pre_with_a([C|Rest], Acc, out) ->
+    escape_pre_with_a(Rest, [C|Acc], out);
+escape_pre_with_a([], Acc, _) ->
+    lists:reverse(Acc).
+
 alias_for(Tag, Data, Attrs, Parents, E) ->
     xmerl_html:'#element#'(Tag, Data, Attrs, Parents, E#xmlElement{name = Tag}).
 
 html_elem(Tag, Data, Attrs, Parents, E) ->
     HTML = fun() ->
-		   xmerl_html:'#element#'(Tag, Data, Attrs, Parents, E)
+                   {Tag1, Data1} = case Tag of
+                                       pre_pre ->
+                                           %% If pre_pre is
+                                           %% encountered within other
+                                           %% HTML markup, just use
+                                           %% code, no pre.
+                                           {code, escape_pre_with_a(Data)};
+                                       T ->
+                                           {T, Data}
+                                   end,
+		   xmerl_html:'#element#'(Tag1, Data1, Attrs, Parents, E)
 	   end,
     case within_html(Parents) of
 	true ->
@@ -169,7 +192,7 @@ md_elem(Tag, Data, Attrs, Parents, E) ->
 	'div' -> Data;
 	ul    -> Data;
 	ol    -> Data;
-	p     -> ["\n\n", Data];
+	p     -> ["\n", Data, "\n"];
 	b     -> ["__", no_nl(Data), "__"];
 	em    -> ["_", no_nl(Data), "_"];
 	i     -> ["_", no_nl(Data), "_"];
@@ -189,12 +212,25 @@ md_elem(Tag, Data, Attrs, Parents, E) ->
 	dl    -> Data;
 	dt    -> html_elem(dt, Data, Attrs, Parents, E);
 	dd    -> html_elem(dd, Data, Attrs, Parents, E);
-	h1 -> ["\n\n#", no_nl(Data), "#\n"];
-	h2 -> ["\n\n##", no_nl(Data), "##\n"];
-	h3 -> ["\n\n###", no_nl(Data), "##\n"];
-	h4 -> ["\n\n####", no_nl(Data), "##\n"];
+	h1 -> ["\n\n# ", no_nl(Data), " #\n"];
+	h2 -> ["\n\n## ", no_nl(Data), " ##\n"];
+	h3 -> ["\n\n### ", no_nl(Data), " ###\n"];
+	h4 -> ["\n\n#### ", no_nl(Data), " ####\n"];
 	hr -> "---------\n";
 	head -> [];
+        pre_pre ->
+            %% markdown expects inline block-level HTML elements to be
+            %% separated from content by blank lines see
+            %% http://daringfireball.net/projects/markdown/syntax.
+            ["\n<pre><code>\n", escape_pre_with_a(Data), "\n</code></pre>\n"];
+        pre ->
+            %% github flavored markdown "fenced" code block. The
+            %% advantage of rendering literal blocks this way is that
+            %% the resulting markdown will be closer to how a human
+            %% would have written it and markdown rendering will take
+            %% care of entity escaping so that a code block describing
+            %% XML or HTML will get rendered properly.
+            ["\n```\n", Data, "\n```\n"];
 	_ ->
 		    ["\n",
 		     xmerl_lib:start_tag(Tag,Attrs),
